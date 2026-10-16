@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Batch Counter · PLC Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14201b;--side:#0f2a23;--bg:#f7f6f1;--card:#fffefb;--line:#e4e2d8;--mut:#6b7570;--grn:#2f9e63;--amb:#e0a526;--red:#d9483b}
+*{box-sizing:border-box}
+body{margin:0;font-family:'DM Sans',system-ui,sans-serif;color:var(--ink);background:var(--bg);display:flex;min-height:100vh}
+aside{width:250px;background:var(--side);color:#cfe3da;padding:26px 20px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.logo{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.5px;margin-bottom:24px}
+.logo small{display:block;font:500 10px 'DM Mono',monospace;letter-spacing:2px;color:#7fa596;margin-top:2px}
+aside a{color:#cfe3da;text-decoration:none;padding:11px 14px;border-radius:8px;font-size:15px}
+aside a:hover,aside a.act{background:#16392f;color:#fff}
+.plc{margin-top:auto;border:1px solid #234a3e;border-radius:12px;padding:14px;font-size:13px}
+.plc b{display:block;color:#fff;font-size:15px}
+main{flex:1;padding:0 36px 48px;min-width:0}
+header{display:flex;justify-content:space-between;align-items:center;padding:22px 0;border-bottom:1px solid var(--line);font-size:13px;color:var(--mut)}
+header b{color:var(--ink);font-weight:500}
+h1{font-size:46px;letter-spacing:-1.5px;margin:34px 0 4px;line-height:1.05}
+h1 span{color:var(--grn)}
+.sub{color:var(--mut);margin:0 0 26px}
+.row{display:grid;gap:16px;margin-bottom:16px}
+.r3{grid-template-columns:repeat(3,1fr)}
+.r2{grid-template-columns:1.9fr 1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}
+.card h3{margin:0 0 14px;font-size:20px;font-weight:500}
+.lab{font-size:12px;color:var(--mut);margin-bottom:8px}
+.big{font-size:34px;font-weight:500;letter-spacing:-1px}
+.big small{font-size:14px;color:var(--mut);font-weight:400}
+.bar{height:4px;background:var(--line);border-radius:2px;margin-top:14px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--grn);width:0;transition:width .1s}
+.pill{display:inline-block;font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--mut)}
+.pill.on{color:var(--grn);border-color:#bfe3cf;background:#eef8f2}
+.pill.warn{color:#a26f00;border-color:#f0d9a0;background:#fdf6e2}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+button{font:500 14px 'DM Sans',sans-serif;padding:10px 16px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+button:hover{border-color:#aab3ae}
+button:focus-visible{outline:2px solid var(--grn);outline-offset:2px}
+button.go{background:var(--side);color:#fff;border-color:var(--side)}
+button.stop{background:#fff;color:var(--red);border-color:#f0c4be}
+button.on{background:#eef8f2;border-color:var(--grn)}
+.digits{display:flex;gap:8px;align-items:center}
+.dg{font:500 54px 'DM Mono',monospace;background:#10211b;color:#6dffb0;border-radius:8px;padding:2px 14px;min-width:62px;text-align:center}
+.vw{font:13px 'DM Mono',monospace;color:var(--mut);margin-top:10px}
+.field{background:#e8efe3;border-radius:10px;padding:8px}
+svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:18px;font-size:12px;color:var(--mut);margin-top:12px;flex-wrap:wrap}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--line)}
+.legend i.g{background:var(--grn)}.legend i.r{background:var(--red)}.legend i.a{background:var(--amb)}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:8px;font-size:14px;color:var(--mut)}
+.ph.act{background:#eef3ec;color:var(--ink)}
+.ph small{display:block;font-size:12px;color:var(--mut)}
+.net{border-top:1px solid var(--line);padding:16px 0}
+.net:first-of-type{border-top:0}
+.net h4{margin:0 0 10px;font-size:14px;font-weight:500}
+.net h4 span{font:12px 'DM Mono',monospace;color:var(--mut);margin-right:10px}
+.rung{display:flex;align-items:center;overflow-x:auto;padding:4px 0}
+.rail{width:4px;height:44px;background:var(--ink);border-radius:2px;flex-shrink:0}
+.wire{height:2px;background:#9aa49f;flex:1;min-width:22px}
+.wire.on{background:var(--grn)}
+.chip{font:12px 'DM Mono',monospace;border:1.5px solid #9aa49f;border-radius:6px;padding:7px 10px;background:#fff;white-space:nowrap;color:var(--mut)}
+.chip.on{border-color:var(--grn);background:#eef8f2;color:#17613a}
+.chip.coil{border-radius:99px}
+.chip.box{background:#fbeceb;border-color:#e6a9a3;color:#8a2c23}
+.chip.box.on{background:#e4f4ea;border-color:var(--grn);color:#17613a}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:500;color:var(--mut);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line)}
+td:first-child{font-family:'DM Mono',monospace;font-size:13px}
+.tag{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--bg)}
+.buz{animation:bz .3s steps(2) infinite}
+@keyframes bz{50%{opacity:.25}}
+@media(max-width:900px){aside{display:none}.r3,.r2{grid-template-columns:1fr}main{padding:0 16px 40px}h1{font-size:34px}}
+@media(prefers-reduced-motion:reduce){.buz{animation:none}}
+</style>
+</head>
+<body>
+<aside>
+  <div class="logo">batch.<small>PLC STUDIO</small></div>
+  <a href="#overview" class="act">Overview</a>
+  <a href="#ladder">Ladder logic</a>
+  <a href="#iomap">I/O map</a>
+  <div class="plc"><b>PLC-01</b>Compact controller<br><span style="color:#7fa596">CPU simulated</span></div>
+</aside>
+<main>
+<header>
+  <span>Projects &nbsp;/&nbsp; Conveyor control &nbsp;/&nbsp; <b>Batch counter</b></span>
+  <span class="pill" id="plcState">PLC standby</span>
+</header>
+
+<section id="overview">
+<h1>Count the batch. <span>Stop the line.</span></h1>
+<p class="sub">A timer and counter driven conveyor controller. It counts to 12, stops the belt, sounds a buzzer for 3 s, then resets.</p>
+
+<div class="row r3">
+  <div class="card"><div class="lab">State</div><div class="big" id="state">Stopped</div><div class="lab" id="stateSub" style="margin:6px 0 0">Press Start to run the conveyor</div></div>
+  <div class="card"><div class="lab">Buzzer timer T20</div><div class="big"><span id="tsec">0.0</span> <small>of 3.0 s</small></div><div class="bar"><i id="tbar"></i></div></div>
+  <div class="card"><div class="lab">Batch progress</div><div class="big"><span id="cnt">0</span> <small>of 12 products</small></div><div class="bar"><i id="cbar"></i></div></div>
+</div>
+
+<div class="row r2">
+  <div class="card">
+    <div class="lab">Field view</div>
+    <h3>Live conveyor</h3>
+    <div class="field">
+    <svg viewBox="0 0 680 230" role="img" aria-label="Conveyor with sensor, products, motor and buzzer">
+      <rect x="20" y="130" width="640" height="26" rx="4" fill="#3b4a44"/>
+      <line id="beltline" x1="24" y1="143" x2="656" y2="143" stroke="#9fb2a9" stroke-width="2" stroke-dasharray="10 10"/>
+      <circle cx="50" cy="168" r="9" fill="#26332e"/><circle cx="630" cy="168" r="9" fill="#26332e"/>
+      <rect x="40" y="168" width="4" height="40" fill="#26332e"/><rect x="620" y="168" width="4" height="40" fill="#26332e"/>
+      <rect x="330" y="60" width="6" height="60" fill="#5d6b65"/>
+      <circle id="sensLamp" cx="333" cy="52" r="8" fill="#c9d1cd"/>
+      <text x="333" y="30" text-anchor="middle" font-size="12" fill="#5d6b65" font-family="DM Sans">Sensor %I0.2</text>
+      <g id="prods"></g>
+      <rect x="560" y="40" width="80" height="44" rx="6" fill="#26332e"/>
+      <circle id="mLamp" cx="580" cy="62" r="8" fill="#6b7570"/><text x="596" y="66" font-size="12" fill="#fff" font-family="DM Sans">Motor</text>
+      <circle id="bLamp" cx="450" cy="62" r="11" fill="#c9d1cd"/><text x="450" y="30" text-anchor="middle" font-size="12" fill="#5d6b65" font-family="DM Sans">Buzzer %Q0.3</text>
+      <text x="40" y="226" font-size="12" fill="#5d6b65" font-family="DM Sans">Products enter here</text>
+    </svg>
+    </div>
+    <div class="btns">
+      <button class="go" id="bStart">Start</button>
+      <button class="stop" id="bStop">Stop</button>
+      <button id="bProd">Add product</button>
+      <button id="bAuto">Auto feed: off</button>
+      <button id="bReset">Reset count</button>
+    </div>
+    <div class="legend"><span><i class="g"></i>Output on</span><span><i class="r"></i>Buzzer</span><span><i class="a"></i>Sensor</span></div>
+  </div>
+  <div class="card">
+    <div class="lab">Count display</div>
+    <h3>Two-digit count</h3>
+    <div class="digits"><div class="dg" id="dT">0</div><div class="dg" id="dO">0</div></div>
+    <div class="vw">%VW2 tens = <span id="vw2">0</span><br>%VW4 ones = <span id="vw4">0</span><br>%VW0 count = <span id="vw0">0</span></div>
+    <div style="margin-top:18px"><div class="lab">Sequence</div>
+      <div class="ph" id="p1">Run and count<small>Start latched, sensor counting</small></div>
+      <div class="ph" id="p2">Batch complete<small>Conveyor off, buzzer 3 s</small></div>
+      <div class="ph" id="p3">Reset<small>Count to 0, wait for Start</small></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="ladder" class="card" style="margin-bottom:16px">
+  <div class="lab">PLC program</div><h3>Ladder logic, live</h3>
+  <div id="nets"></div>
+</section>
+
+<section id="iomap" class="card">
+  <div class="lab">Addressing</div><h3>I/O map</h3>
+  <table>
+    <tr><th>Address</th><th>Name</th><th>Type</th></tr>
+    <tr><td>%I0.0</td><td>Start button</td><td><span class="tag">Input</span></td></tr>
+    <tr><td>%I0.1</td><td>Stop button (NC contact in logic)</td><td><span class="tag">Input</span></td></tr>
+    <tr><td>%I0.2</td><td>Product sensor</td><td><span class="tag">Input</span></td></tr>
+    <tr><td>%I0.3</td><td>Manual count reset</td><td><span class="tag">Input</span></td></tr>
+    <tr><td>%Q0.0</td><td>Conveyor motor</td><td><span class="tag">Output</span></td></tr>
+    <tr><td>%Q0.1</td><td>Counter reset coil</td><td><span class="tag">Output</span></td></tr>
+    <tr><td>%Q0.2</td><td>Batch done flag</td><td><span class="tag">Output</span></td></tr>
+    <tr><td>%Q0.3</td><td>Buzzer</td><td><span class="tag">Output</span></td></tr>
+    <tr><td>%M0.0</td><td>Run latch</td><td><span class="tag">Memory</span></td></tr>
+    <tr><td>%M0.1</td><td>Auto reset request</td><td><span class="tag">Memory</span></td></tr>
+    <tr><td>C0</td><td>Batch counter, PV = 12, value in %VW0</td><td><span class="tag">Counter</span></td></tr>
+    <tr><td>T20</td><td>Buzzer timer, PT = 30 (3 s), value in %VW6</td><td><span class="tag">Timer</span></td></tr>
+    <tr><td>%VW2 / %VW4</td><td>Tens digit / ones digit</td><td><span class="tag">Word</span></td></tr>
+  </table>
+</section>
+</main>
+
+<script>
+const S={I00:0,I01:0,I02:0,I03:0,M00:0,M01:0,Q00:0,Q02:0,Q03:0,count:0,et:0,t20:0,c0:0,sm:1};
+let prev=0,prods=[],auto=null;
+const $=id=>document.getElementById(id);
+
+function scan(){
+  S.M00=((S.I00||S.M00)&&!S.I01&&!S.c0)?1:0;
+  S.Q00=S.M00;
+  if(S.I02&&!prev&&S.M00&&S.count<12)S.count++;
+  prev=S.I02;
+  if(S.M01||S.I03)S.count=0;
+  S.c0=S.count>=12?1:0;
+  S.Q02=S.c0;
+  if(S.Q02){if(S.et<30)S.et++}else S.et=0;
+  S.t20=S.et>=30?1:0;
+  S.Q03=(S.Q02&&!S.t20)?1:0;
+  S.M01=S.t20;
+}
+function pulse(k,ms){S[k]=1;setTimeout(()=>S[k]=0,ms||150)}
+
+const nets=[
+ ['Conveyor run latch: Start latches, Stop or batch complete breaks it',[['c',()=>S.I00||S.M00,'%I0.0 | %M0.0'],['n',()=>S.I01,'%I0.1'],['n',()=>S.c0,'C0'],['coil',()=>S.M00,'%M0.0']]],
+ ['Conveyor motor output',[['c',()=>S.M00,'%M0.0'],['coil',()=>S.Q00,'%Q0.0']]],
+ ['Counter reset: auto after buzzer or manual button',[['c',()=>S.M01||S.I03,'%M0.1 | %I0.3'],['coil',()=>S.M01||S.I03,'%Q0.1']]],
+ ['Batch counter: counts products while conveyor runs, preset 12',[['c',()=>S.I02,'%I0.2'],['c',()=>S.M00,'%M0.0'],['box',()=>S.count>0,'CTU C0 PV=12'],['coil',()=>S.Q02,'%Q0.2']]],
+ ['Buzzer timer: 3 s delay starts when the batch is complete',[['c',()=>S.Q02,'%Q0.2'],['box',()=>S.et>0,'TON T20 PT=30']]],
+ ['Buzzer output: on for 3 s after the batch is complete',[['c',()=>S.Q02,'%Q0.2'],['n',()=>S.t20,'T20'],['coil',()=>S.Q03,'%Q0.3']]],
+ ['Auto reset request: when buzzer timer finishes',[['c',()=>S.t20,'T20'],['coil',()=>S.M01,'%M0.1']]],
+ ['Count display: tens digit = count / 10',[['c',()=>1,'%SM0.0'],['box',()=>1,'DIV %VW0 / 10 = %VW2']]],
+ ['Count display: tens x 10 (helper for ones digit)',[['c',()=>1,'%SM0.0'],['box',()=>1,'MUL %VW2 x 10 = %VW8']]],
+ ['Count display: ones digit = count - (tens x 10)',[['c',()=>1,'%SM0.0'],['box',()=>1,'SUB %VW0 - %VW8 = %VW4']]]
+];
+const netsEl=$('nets');
+nets.forEach((n,i)=>{
+  const d=document.createElement('div');d.className='net';
+  let h='<h4><span>Network '+i+'</span>'+n[0]+'</h4><div class="rung"><div class="rail"></div>';
+  n[1].forEach((it,j)=>{h+='<div class="wire" data-w="'+i+'"></div><div class="chip '+(it[0]=='coil'?'coil':it[0]=='box'?'box':'')+'" data-n="'+i+'-'+j+'">'+(it[0]=='n'?'/ ':'')+it[2]+'</div>'});
+  h+='<div class="wire" data-w="'+i+'"></div><div class="rail"></div></div>';
+  d.innerHTML=h;netsEl.appendChild(d);
+});
+
+function render(){
+  nets.forEach((n,i)=>{
+    let power=true;
+    n[1].forEach((it,j)=>{
+      let v=!!it[1]();
+      if(it[0]=='n')v=!v;
+      const el=document.querySelector('[data-n="'+i+'-'+j+'"]');
+      const lit=(it[0]=='coil'||it[0]=='box')?(power&&(it[0]=='coil'?v:v)):v&&power;
+      el.classList.toggle('on',it[0]=='coil'?!!it[1]():lit);
+      if(it[0]=='c'||it[0]=='n')power=power&&v;
+    });
+    document.querySelectorAll('[data-w="'+i+'"]').forEach(w=>w.classList.toggle('on',power));
+  });
+  const t=Math.floor(S.count/10),o=S.count-t*10;
+  $('dT').textContent=t;$('dO').textContent=o;
+  $('vw0').textContent=S.count;$('vw2').textContent=t;$('vw4').textContent=o;
+  $('cnt').textContent=S.count;$('cbar').style.width=(S.count/12*100)+'%';
+  $('tsec').textContent=(S.et/10).toFixed(1);$('tbar').style.width=(S.et/30*100)+'%';
+  const st=S.Q03?['Batch complete','Conveyor stopped, buzzer on']:S.Q00?['Running','Counting products on %I0.2']:S.count>0?['Paused','Count held, press Start']:['Stopped','Press Start to run the conveyor'];
+  $('state').textContent=st[0];$('stateSub').textContent=st[1];
+  const p=$('plcState');p.textContent=S.Q00?'PLC running':S.Q03?'Batch complete':'PLC standby';
+  p.className='pill'+(S.Q00?' on':S.Q03?' warn':'');
+  $('mLamp').setAttribute('fill',S.Q00?'#4ade80':'#6b7570');
+  $('bLamp').setAttribute('fill',S.Q03?'#d9483b':'#c9d1cd');
+  $('bLamp').classList.toggle('buz',!!S.Q03);
+  $('sensLamp').setAttribute('fill',S.I02?'#e0a526':'#c9d1cd');
+  $('beltline').style.strokeDashoffset=S.Q00?$('beltline').style.strokeDashoffset:$('beltline').style.strokeDashoffset;
+  $('p1').classList.toggle('act',!!S.Q00);
+  $('p2').classList.toggle('act',!!S.Q03);
+  $('p3').classList.toggle('act',!!(S.M01||S.I03));
+}
+
+function addProduct(){
+  if(prods.length>14)return;
+  const r=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  r.setAttribute('y',100);r.setAttribute('width',30);r.setAttribute('height',30);r.setAttribute('rx',3);r.setAttribute('fill','#c98a3d');
+  $('prods').appendChild(r);
+  prods.push({x:30,el:r});
+}
+let last=performance.now(),off=0;
+function frame(now){
+  const dt=(now-last)/1000;last=now;
+  if(S.Q00){
+    off=(off+dt*60)%20;$('beltline').style.strokeDashoffset=-off;
+    prods.forEach(p=>{
+      const old=p.x;p.x+=dt*110;
+      if(old+15<333&&p.x+15>=333)pulse('I02',160);
+      p.el.setAttribute('x',p.x);
+    });
+    prods=prods.filter(p=>{if(p.x>625){p.el.remove();return false}return true});
+  }
+  requestAnimationFrame(frame);
+}
+$('bStart').onclick=()=>pulse('I00');
+$('bStop').onclick=()=>pulse('I01');
+$('bReset').onclick=()=>pulse('I03');
+$('bProd').onclick=addProduct;
+$('bAuto').onclick=function(){
+  if(auto){clearInterval(auto);auto=null;this.textContent='Auto feed: off';this.classList.remove('on')}
+  else{auto=setInterval(addProduct,1100);addProduct();this.textContent='Auto feed: on';this.classList.add('on')}
+};
+setInterval(()=>{scan();render()},100);
+requestAnimationFrame(frame);render();
+document.querySelectorAll('aside a').forEach(a=>a.onclick=()=>{document.querySelectorAll('aside a').forEach(x=>x.classList.remove('act'));a.classList.add('act')});
+</script>
+</body>
+</html>
