@@ -2,7 +2,7 @@
 
 A PLC program that counts products on a conveyor, stops the belt when a batch is complete, sounds a buzzer for 3 seconds, and resets the count for the next batch. This repository also includes a browser simulator that runs the same logic, so the program can be tested without hardware.
 
-**Live demo:** https://Sumit-108-1.github.io/batch-counter-plc/
+**Live demo:** https://sumit-108-1.github.io/batch-counter-simulator/
 
 ## Features
 
